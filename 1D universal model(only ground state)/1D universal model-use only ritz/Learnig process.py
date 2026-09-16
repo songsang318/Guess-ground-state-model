@@ -22,6 +22,11 @@ sin_basis = np.sin(k_modes)
 cos_basis = np.cos(k_modes)
 
 
+# print(sin_basis.shape)
+#=========================================================
+# 이 부분 대대적인 수정 필요하다 (위아래로) psi 복원함수 제대로 만들어야함
+#=========================================================
+
 
 # [단계 2] 11개 값을 입력받아서 규격화된 psi(x)를 구성하는 함수
 
@@ -55,7 +60,7 @@ def construct_wavefunction(params):
 
 # 손실함수 계산 함수 (construct_wavefunction의 출력을 사용하여 L1 + w*L2 계산)
 
-def compute_schrodinger_loss(psi, V, w_scale=0.01):
+def compute_schrodinger_loss(psi, V, w_scale):
     """
     - L1 : 슈뢰딩거 잔차 제곱합 ||H*psi - E*psi||^2 * dx
     - L2 : 바닥상태 에너지 고윳값 E = <psi|H|psi>
@@ -151,7 +156,7 @@ print(f"[1] 학습 데이터 로드 완료: {train_potentials.shape}")
 EPOCHS = 1000
 BATCH_SIZE = 32
 LEARNING_RATE = 0.001
-W_SCALE = 0.01  # L2 (에너지) 가중치
+#W_SCALE = 0.01
 N_SAMPLES = len(train_potentials)
 
 # Adam Optimizer 설정
@@ -168,6 +173,8 @@ for epoch in range(1, EPOCHS + 1):
 
     loss_accum, l1_accum, l2_accum = 0.0, 0.0, 0.0
     num_batches = 0
+
+    W_SCALE = 0 #(0.001 * (0.1 / 0.001))**((epoch - 1)/ (EPOCHS - 1))
 
     for i in range(0, N_SAMPLES, BATCH_SIZE):
         batch_V = train_shuffled[i:i + BATCH_SIZE]
